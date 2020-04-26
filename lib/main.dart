@@ -9,6 +9,8 @@ class SnakeApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: GameScreen(),
+      theme: ThemeData.dark(),
+      darkTheme: ThemeData.dark(),
     );
   }
 }
