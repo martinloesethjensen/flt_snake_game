@@ -1,0 +1,2 @@
+const int NUMBER_OF_SQUARES = 760;
+const int NUMBER_OF_SQUARES_IN_ROW = 20;
