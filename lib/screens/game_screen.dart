@@ -118,7 +118,8 @@ class _GameScreenState extends State<GameScreen> {
           contentTextStyle: TextStyle(color: Colors.white),
           type: GFAlertType.rounded,
           title: "game over".toUpperCase(),
-          titleTextStyle: TextStyle(color: Colors.white, fontSize: 17.0, fontWeight: FontWeight.w700),
+          titleTextStyle: TextStyle(
+              color: Colors.white, fontSize: 17.0, fontWeight: FontWeight.w700),
           content: 'You lost and got a total of $totalPoints points!',
           bottombar: Row(
             mainAxisAlignment: MainAxisAlignment.center,

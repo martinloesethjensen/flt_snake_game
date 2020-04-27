@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 class ScoreTextWidget extends StatelessWidget {
   const ScoreTextWidget({
     Key key,
