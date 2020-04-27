@@ -20,10 +20,9 @@ class _GameScreenState extends State<GameScreen> {
   int foodPosition;
   Direction direction;
 
-  String buttonText = "START";
-
   bool isPaused = true;
   bool gameStarted = false;
+  bool gameOver = false;
 
   void startGame() {
     snakePosition = [45, 65, 85, 105, 125];
@@ -75,6 +74,7 @@ class _GameScreenState extends State<GameScreen> {
       }
 
       if (snakePosition.last == foodPosition) {
+        // TODO: point system
         generateNewFood();
       } else {
         snakePosition.removeAt(0);
@@ -104,10 +104,18 @@ class _GameScreenState extends State<GameScreen> {
               flex: 10,
               child: GestureDetector(
                 onVerticalDragUpdate: (details) {
-                  print(details.delta.direction);
+                  if (details.delta.direction < 0 && direction != Direction.UP && direction != Direction.DOWN) {
+                    direction = Direction.UP;
+                  } else if (details.delta.direction > 0 && direction != Direction.UP && direction != Direction.DOWN) {
+                    direction = Direction.DOWN;
+                  }
                 },
                 onHorizontalDragUpdate: (details) {
-                  print(details.delta.direction);
+                  if (details.delta.direction > 0 && direction != Direction.LEFT && direction != Direction.RIGHT) {
+                    direction = Direction.LEFT;
+                  } else if (details.delta.direction == 0.0 && direction != Direction.LEFT && direction != Direction.RIGHT) {
+                    direction = Direction.RIGHT;
+                  }
                 },
                 child: Container(
                   child: buildGridView(),
