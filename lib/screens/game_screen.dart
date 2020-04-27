@@ -2,6 +2,7 @@ import 'package:flt_snake_game/consts.dart';
 import 'package:flt_snake_game/models/direction.dart';
 import 'package:flt_snake_game/snake.dart';
 import 'package:flt_snake_game/widgets/position_dot.dart';
+import 'package:flt_snake_game/widgets/score_text.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:math';
@@ -22,7 +23,11 @@ class _GameScreenState extends State<GameScreen> {
 
   bool isPaused = true;
   bool gameStarted = false;
-  bool gameOver = false;
+  bool gameOver = true;
+
+  int totalPoints = 0;
+  bool hasPersonalRecord = false;
+  int personalRecord;
 
   void startGame() {
     snakePosition = [45, 65, 85, 105, 125];
@@ -33,10 +38,9 @@ class _GameScreenState extends State<GameScreen> {
       if (!isPaused) {
         updateSnake();
       }
-//      if (gameOver) {
-//        timer.cancel();
-//        _showGameOverScreen()
-//      }
+      if (gameOver) {
+        timer.cancel();
+      }
     });
   }
 
@@ -67,14 +71,14 @@ class _GameScreenState extends State<GameScreen> {
           break;
         case Direction.DOWN:
           addSnakePositionWhen(
-              condition: snakePosition.last > 680,
+              condition: snakePosition.last > NUMBER_OF_SQUARES - 20,
               truePosition: snakePosition.last + 20 - NUMBER_OF_SQUARES,
               falsePosition: snakePosition.last + 20);
           break;
       }
 
       if (snakePosition.last == foodPosition) {
-        // TODO: point system
+        totalPoints += 10;
         generateNewFood();
       } else {
         snakePosition.removeAt(0);
@@ -95,45 +99,120 @@ class _GameScreenState extends State<GameScreen> {
       child: Scaffold(
         backgroundColor: Colors.black,
         floatingActionButton: FloatingActionButton(
+          backgroundColor: (gameOver) ? Colors.white10 : null,
           child: (isPaused) ? Icon(Icons.play_arrow) : Icon(Icons.pause),
-          onPressed: () => updateGameState(),
+          onPressed: (!gameOver) ? () => updateGameState() : null,
         ),
-        body: Column(
-          children: <Widget>[
-            Expanded(
-              flex: 10,
-              child: GestureDetector(
-                onVerticalDragUpdate: (details) {
-                  if (details.delta.direction < 0 && direction != Direction.UP && direction != Direction.DOWN) {
-                    direction = Direction.UP;
-                  } else if (details.delta.direction > 0 && direction != Direction.UP && direction != Direction.DOWN) {
-                    direction = Direction.DOWN;
-                  }
-                },
-                onHorizontalDragUpdate: (details) {
-                  if (details.delta.direction > 0 && direction != Direction.LEFT && direction != Direction.RIGHT) {
-                    direction = Direction.LEFT;
-                  } else if (details.delta.direction == 0.0 && direction != Direction.LEFT && direction != Direction.RIGHT) {
-                    direction = Direction.RIGHT;
-                  }
-                },
-                child: Container(
-                  child: buildGridView(),
-                ),
-              ),
-            ),
-            Expanded(
-              child: Center(
-                child: GFButton(
-                  color: GFColors.DARK,
-                  text: (isPaused) ? "START" : "PAUSE",
-                  onPressed: () => updateGameState(),
-                ),
-              ),
-            ),
-          ],
-        ),
+        body: (gameOver) ? buildGameOverScreen() : buildGameScreen(),
       ),
+    );
+  }
+
+  Center buildGameOverScreen() {
+    return Center(
+      child: GFFloatingWidget(
+        verticalPosition: MediaQuery.of(context).size.height * 0.35,
+        showblurness: true,
+        child: GFAlert(
+          backgroundColor: Colors.white38,
+          contentTextStyle: TextStyle(color: Colors.white),
+          type: GFAlertType.rounded,
+          title: "game over".toUpperCase(),
+          titleTextStyle: TextStyle(color: Colors.white, fontSize: 17.0, fontWeight: FontWeight.w700),
+          content: 'You lost and got a total of $totalPoints points!',
+          bottombar: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Expanded(
+                child: GFButton(
+                  onPressed: () => setState(() => resetGame()),
+                  textColor: Colors.black87,
+                  color: Colors.greenAccent,
+                  shape: GFButtonShape.pills,
+                  position: GFPosition.end,
+                  text: 'retry'.toUpperCase(),
+                ),
+              ),
+              Spacer(),
+              Expanded(
+                child: GFButton(
+                  onPressed: () {
+                    setState(() {
+//                      gameOver = false;
+                    });
+                  },
+                  shape: GFButtonShape.pills,
+                  position: GFPosition.end,
+                  text: 'scoreboard'.toUpperCase(),
+                ),
+              )
+            ],
+          ),
+        ),
+        body: buildGameScreen(),
+      ),
+    );
+  }
+
+  Column buildGameScreen() {
+    return Column(
+      children: <Widget>[
+        Expanded(
+          flex: 10,
+          child: GestureDetector(
+            onVerticalDragUpdate: (details) {
+              if (details.delta.direction < 0 &&
+                  direction != Direction.UP &&
+                  direction != Direction.DOWN) {
+                direction = Direction.UP;
+              } else if (details.delta.direction > 0 &&
+                  direction != Direction.UP &&
+                  direction != Direction.DOWN) {
+                direction = Direction.DOWN;
+              }
+            },
+            onHorizontalDragUpdate: (details) {
+              if (details.delta.direction > 0 &&
+                  direction != Direction.LEFT &&
+                  direction != Direction.RIGHT) {
+                direction = Direction.LEFT;
+              } else if (details.delta.direction == 0.0 &&
+                  direction != Direction.LEFT &&
+                  direction != Direction.RIGHT) {
+                direction = Direction.RIGHT;
+              }
+            },
+            child: Container(
+              child: buildGridView(),
+            ),
+          ),
+        ),
+        Expanded(
+          child: Center(
+            child: Padding(
+              padding: EdgeInsets.all(15.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  Column(
+                    children: <Widget>[
+                      if (hasPersonalRecord)
+                        ScoreTextWidget(
+                            text: "personal record", score: personalRecord),
+                      ScoreTextWidget(text: "points", score: totalPoints),
+                    ],
+                  ),
+//                    GFButton(
+//                      color: GFColors.DARK,
+//                      text: (isPaused) ? "START" : "PAUSE",
+//                      onPressed: () => updateGameState(),
+//                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -165,5 +244,12 @@ class _GameScreenState extends State<GameScreen> {
         return PositionDot(color: Colors.white10);
       },
     );
+  }
+
+  void resetGame() {
+    gameOver = false;
+    totalPoints = 0;
+    isPaused = true;
+    // startGame();
   }
 }
