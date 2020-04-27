@@ -124,6 +124,7 @@ class _GameScreenState extends State<GameScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Expanded(
+                flex: 6,
                 child: GFButton(
                   onPressed: () => setState(() => resetGame()),
                   textColor: Colors.black87,
@@ -135,6 +136,7 @@ class _GameScreenState extends State<GameScreen> {
               ),
               Spacer(),
               Expanded(
+                flex: 6,
                 child: GFButton(
                   onPressed: () {
                     setState(() {
